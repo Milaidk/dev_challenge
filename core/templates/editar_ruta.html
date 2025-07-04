@@ -1,4 +1,3 @@
-{# myapp/templates/editar_ruta.html #}
 {% extends "base.html" %}
 {% load widget_tweaks %}
 {% load static %}
@@ -6,44 +5,139 @@
 {% block title %}Editar Ruta | TinUdriv{% endblock title %}
 
 {% block content %}
-<div class="container">
+<div class="container py-4">
     <div class="row justify-content-center">
-        <div class="col-md-8">
+        <div class="col-md-8 col-lg-6">
+            <!-- Encabezado -->
+            <div class="text-center mb-4">
+                <div class="d-inline-flex align-items-center justify-content-center bg-primary rounded-circle mb-3" 
+                     style="width: 60px; height: 60px;">
+                    <i class="fas fa-edit fa-2x text-white"></i>
+                </div>
+                <h2 class="fw-bold mb-2">Editar Ruta</h2>
+                <p class="text-muted">Modifica los detalles de tu ruta publicada</p>
+            </div>
+
+            <!-- Formulario de edición -->
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">Edicion de rutas actuales</h5>
                     <form method="post">
                         {% csrf_token %}
-                        {{ form.non_field_errors }}
+                        
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger" role="alert">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                {{ form.non_field_errors }}
+                            </div>
+                        {% endif %}
 
-                        <div class="mb-2">
-                            {{ form.origen.label_tag }}
-                            {{ form.origen|add_class:'form-control' }}
-                            {{ form.origen.errors }}
+                        <div class="mb-3">
+                            <label for="{{ form.origen.id_for_label }}" class="form-label">
+                                <i class="fas fa-map-marker-alt me-2"></i>{{ form.origen.label }}
+                            </label>
+                            {{ form.origen|add_class:'form-control'|attr:'placeholder:Ej: Universidad Central' }}
+                            {% if form.origen.errors %}
+                                <div class="text-danger mt-1">
+                                    <small>{{ form.origen.errors }}</small>
+                                </div>
+                            {% endif %}
                         </div>
-                        <div class="mb-2">
-                            {{ form.fecha.label_tag }}
-                            {{ form.fecha|add_class:'form-control' }}
-                            {{ form.fecha.errors }}
+
+                        <div class="mb-3">
+                            <label for="{{ form.sitio_llegada.id_for_label }}" class="form-label">
+                                <i class="fas fa-flag-checkered me-2"></i>{{ form.sitio_llegada.label }}
+                            </label>
+                            {{ form.sitio_llegada|add_class:'form-control'|attr:'placeholder:Ej: Centro Comercial Norte' }}
+                            {% if form.sitio_llegada.errors %}
+                                <div class="text-danger mt-1">
+                                    <small>{{ form.sitio_llegada.errors }}</small>
+                                </div>
+                            {% endif %}
+                            <div class="form-text">
+                                <small>Campo opcional - Destino final del viaje</small>
+                            </div>
                         </div>
-                        <div class="mb-2">
-                            {{ form.hora_salida.label_tag }}
-                            {{ form.hora_salida|add_class:'form-control' }}
-                            {{ form.hora_salida.errors }}
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="{{ form.fecha.id_for_label }}" class="form-label">
+                                        <i class="fas fa-calendar me-2"></i>{{ form.fecha.label }}
+                                    </label>
+                                    {{ form.fecha|add_class:'form-control' }}
+                                    {% if form.fecha.errors %}
+                                        <div class="text-danger mt-1">
+                                            <small>{{ form.fecha.errors }}</small>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="{{ form.hora_salida.id_for_label }}" class="form-label">
+                                        <i class="fas fa-clock me-2"></i>{{ form.hora_salida.label }}
+                                    </label>
+                                    {{ form.hora_salida|add_class:'form-control' }}
+                                    {% if form.hora_salida.errors %}
+                                        <div class="text-danger mt-1">
+                                            <small>{{ form.hora_salida.errors }}</small>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
                         </div>
-                        <div class="mb-2">
-                            {{ form.asientos_disponibles.label_tag }}
+
+                        <div class="mb-4">
+                            <label for="{{ form.asientos_disponibles.id_for_label }}" class="form-label">
+                                <i class="fas fa-chair me-2"></i>{{ form.asientos_disponibles.label }}
+                            </label>
                             {{ form.asientos_disponibles|add_class:'form-control' }}
-                            {{ form.asientos_disponibles.errors }}
-                        </div>
-                        <div class="mb-2">
-                            {{ form.sitio_llegada.label_tag }}
-                            {{ form.sitio_llegada|add_class:'form-control' }}
-                            {{ form.sitio_llegada.errors }}
+                            {% if form.asientos_disponibles.errors %}
+                                <div class="text-danger mt-1">
+                                    <small>{{ form.asientos_disponibles.errors }}</small>
+                                </div>
+                            {% endif %}
+                            <div class="form-text">
+                                <small>Número máximo de pasajeros que puedes llevar</small>
+                            </div>
                         </div>
 
-                        <button type="submit" class="btn btn-primary w-100">Guardar Cambios</button>
+                        <!-- Botones de acción -->
+                        <div class="d-flex gap-3">
+                            <button type="submit" class="btn btn-primary flex-fill">
+                                <i class="fas fa-save me-2"></i>
+                                Guardar cambios
+                            </button>
+                            <a href="{% url 'panel' %}" class="btn btn-outline-secondary flex-fill">
+                                <i class="fas fa-times me-2"></i>
+                                Cancelar
+                            </a>
+                        </div>
                     </form>
+                </div>
+            </div>
+
+            <!-- Información adicional -->
+            <div class="card mt-4 bg-light">
+                <div class="card-body">
+                    <h6 class="card-title">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Información importante
+                    </h6>
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Los cambios se aplicarán inmediatamente
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-users text-primary me-2"></i>
+                            Los pasajeros ya reservados serán notificados de los cambios
+                        </li>
+                        <li>
+                            <i class="fas fa-clock text-warning me-2"></i>
+                            Asegúrate de que la fecha y hora sean correctas
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>

@@ -67,7 +67,8 @@ def panel_view(request):
         rutas = Ruta.objects.filter(conductor=request.user)
         return render(request, 'panel_conductor.html', {'rutas': rutas})
     else:
-        rutas = Ruta.objects.filter(fecha__gte=timezone.now().date()).exclude(conductor=request.user)
+        # Como pasajero, ver todas las rutas disponibles (incluyendo las propias si las tiene)
+        rutas = Ruta.objects.filter(fecha__gte=timezone.now().date(), asientos_disponibles__gt=0)
         reservas = Reserva.objects.filter(pasajero=request.user)
         return render(request, 'panel_pasajero.html', {'rutas': rutas, 'reservas': reservas})
 
@@ -78,12 +79,14 @@ def publicar_ruta_view(request):
         return redirect('panel')
     if request.method == 'POST':
         origen = request.POST.get('origen')
+        sitio_llegada = request.POST.get('sitio_llegada', 'Universidad Católica del Ecuador')
         fecha = request.POST.get('fecha')
         hora_salida = request.POST.get('hora_salida')
         asientos = request.POST.get('asientos_disponibles')
         Ruta.objects.create(
             conductor=request.user,
             origen=origen,
+            sitio_llegada=sitio_llegada,
             fecha=fecha,
             hora_salida=hora_salida,
             asientos_disponibles=asientos
