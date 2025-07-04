@@ -1,0 +1,53 @@
+# Python
+*.pyc
+__pycache__/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+
+# Entornos virtuales
+venv/
+env/
+.venv/
+
+# Django-specific
+*.log
+*.pot
+*.mo
+db.sqlite3 # Base de datos SQLite local
+media/      # Archivos subidos por los usuarios (si no los versionas)
+
+# Archivos de configuración y secretos
+.env
+.flaskenv
+.vault_pass.txt
+settings_local.py # Si tienes configuraciones locales que no deben ir al repo
+config.ini
+*.json.secret # Posibles archivos de secretos JSON
+
+# IDEs y editores
+.idea/ # PyCharm
+.vscode/ # VS Code
+*.sublime-project
+*.sublime-workspace
+
+# Sistema operativo
+.DS_Store # macOS
+Thumbs.db # Windows
+ehthumbs.db # Windows
+
+# Docker (si lo usas)
+.dockerignore # Aunque este ya es para Docker, es buena práctica no subirlo a Git si no es necesario
+docker-compose.override.yml # Configuraciones locales de Docker Compose
+
+# Node.js (si usas frontend con Node)
+node_modules/
+npm-debug.log
+yarn-debug.log
+.parcel-cache/ # Parcel bundler
+dist/ # Directorio de build de frontend
+build/ # Otro posible directorio de build de frontend
+
+# Otros
+*.zip
+*.tar.gz
