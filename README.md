@@ -1,4 +1,4 @@
-![👀](./core/static/images/tinudiv.png)
+![👀](./core/static/images/imageapp.png)
 # 🚌 Proyecto Transporte Sostenible
 
 Este proyecto es una **plataforma de transporte sostenible** construida con Django. Permite que **conductores registren rutas** y que **pasajeros las reserven** desde un panel personalizado. El sistema incluye funcionalidades de **registro, login y control de acceso** para ambos roles, manteniendo una experiencia clara y diferenciada para cada tipo de usuario.
