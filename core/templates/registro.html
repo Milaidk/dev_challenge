@@ -1,0 +1,76 @@
+{% load static %}
+{% load form_tags %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro | TinUdriv</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #7b8cff 0%, #a084ee 100%);
+            min-height: 100vh;
+        }
+        .card {
+            border-radius: 20px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+        }
+        .form-label {
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+<div class="container d-flex align-items-center justify-content-center min-vh-100">
+    <div class="card p-4" style="width: 100%; max-width: 430px;">
+        <h2 class="text-center fw-bold" style="color: #5a6ff0;">TinUdriv</h2>
+        <p class="text-center mb-4">Crea tu cuenta y únete al viaje 🚗</p>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+            <div class="mb-2">
+                {{ form.nombre_completo.label_tag }}
+                {{ form.nombre_completo|add_class:'form-control' }}
+                {{ form.nombre_completo.errors }}
+            </div>
+            <div class="mb-2">
+                {{ form.correo_institucional.label_tag }}
+                {{ form.correo_institucional|add_class:'form-control' }}
+                {{ form.correo_institucional.errors }}
+            </div>
+            <div class="mb-2">
+                {{ form.password1.label_tag }}
+                {{ form.password1|add_class:'form-control' }}
+                {{ form.password1.errors }}
+            </div>
+            <div class="mb-2">
+                {{ form.password2.label_tag }}
+                {{ form.password2|add_class:'form-control' }}
+                {{ form.password2.errors }}
+            </div>
+            <div class="mb-2">
+                {{ form.telefono.label_tag }}
+                {{ form.telefono|add_class:'form-control' }}
+                {{ form.telefono.errors }}
+            </div>
+            <div class="mb-2">
+                {{ form.facultad.label_tag }}
+                {{ form.facultad|add_class:'form-control' }}
+                {{ form.facultad.errors }}
+            </div>
+            <div class="mb-2">
+                {{ form.tipo_usuario.label_tag }}
+                {{ form.tipo_usuario|add_class:'form-select' }}
+                {{ form.tipo_usuario.errors }}
+            </div>
+            <button type="submit" class="btn btn-primary w-100 mt-2">Registrarme</button>
+        </form>
+        <div class="text-center mt-2">
+            <a href="{% url 'login' %}">¿Ya tienes cuenta? Inicia sesión</a>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 
