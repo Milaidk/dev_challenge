@@ -21,3 +21,8 @@ footer {
     text-align: center;
     margin-top: 6rem;
 }
+
+#rutasContainer {
+    display: none;
+    transition: all 0.3s ease;
+}
