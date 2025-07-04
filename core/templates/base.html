@@ -37,20 +37,20 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 
+                {% if user.is_authenticated or user.usuario.tipo_usuario != 'conductor' %}
+                    <button class="btn btn-outline-primary btn-sm" onclick="toggleRutas()">
+                        <i class="fas fa-route me-1"></i>
+                            Ver rutas
+                    </button>
+                {% endif %}
+
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <div class="navbar-nav ms-auto d-flex align-items-center gap-2">
                         <span class="navbar-text me-3">
                             <i class="fas fa-user-circle me-1"></i>
                             Hola, {{ user.first_name|default:user.username }}
                         </span>
-                        
-                        {% if user.usuario.tipo_usuario == 'pasajero' %}
-                            <button class="btn btn-outline-primary btn-sm" onclick="toggleRutas()">
-                                <i class="fas fa-route me-1"></i>
-                                Ver rutas
-                            </button>
-                        {% endif %}
-                        
+
                         <a href="{% url 'logout' %}" class="btn btn-outline-danger btn-sm">
                             <i class="fas fa-sign-out-alt me-1"></i>
                             Cerrar sesión
