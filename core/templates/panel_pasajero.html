@@ -1,64 +1,233 @@
 {% extends "base.html" %}
 {% load widget_tweaks %}
 {% load static %}
+{% block title %}Panel Pasajero | TinUdriv{% endblock title %}
+
 {% block content %}
-<div class="container">
-    
-    <div class="row justify-content-center">
-        <div class="col-md-10">
-            <div id="rutasContainer" class="card mb-4">
+<div class="container py-5 mt-4">
+    <!-- Encabezado de bienvenida -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-primary text-white">
                 <div class="card-body">
-                    <h5 class="card-title">Rutas disponibles</h5>
+                    <div class="d-flex align-items-center">
+                        <div class="me-3">
+                            <i class="fas fa-user-friends fa-3x opacity-75"></i>
+                        </div>
+                        <div>
+                            <h3 class="card-title mb-1">
+                                ¡Bienvenido, {{ user.first_name|default:user.username }}!
+                            </h3>
+                            <p class="mb-0 opacity-90">
+                                <i class="fas fa-map-marked-alt me-2"></i>
+                                Encuentra y reserva viajes compartidos con otros estudiantes
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Contenedor de rutas disponibles -->
+            <div id="rutasContainer" class="card mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-route me-2"></i>
+                        Rutas disponibles
+                    </h5>
+                </div>
+                <div class="card-body">
                     {% if rutas %}
-                        <ul class="list-group">
-                        {% for ruta in rutas %}
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <div>
-                                    <b>Origen:</b> {{ ruta.origen }}<br>
-                                    <b>Fecha:</b> {{ ruta.fecha }}<br>
-                                    <b>Hora de salida:</b> {{ ruta.hora_salida }}<br>
-                                    <b>Asientos disponibles:</b> {{ ruta.asientos_disponibles }}<br>
-                                    <b>Conductor:</b> {{ ruta.conductor.nombre_completo }}
+                        <div class="row g-4">
+                            {% for ruta in rutas %}
+                                <div class="row-md-6">
+                                    <div class="card border-0 shadow-sm h-100" style="margin-bottom: 2rem;">
+                                        <div class="card-body p-4">
+                                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                                <div class="route-info flex-grow-1">
+                                                    <h6 class="fw-bold mb-2">
+                                                        <i class="fas fa-map-marker-alt me-2 text-success"></i>
+                                                        {{ ruta.origen }}
+                                                    </h6>
+                                                    {% if ruta.sitio_llegada %}
+                                                        <p class="text-muted small mb-2">
+                                                            <i class="fas fa-arrow-right me-2"></i>
+                                                            {{ ruta.sitio_llegada }}
+                                                        </p>
+                                                    {% endif %}
+                                                </div>
+                                                <div class="text-end">
+                                                    {% if ruta.asientos_disponibles > 0 %}
+                                                        <span class="badge bg-success">
+                                                            {{ ruta.asientos_disponibles }} 
+                                                            <i class="fas fa-chair ms-1"></i>
+                                                        </span>
+                                                    {% else %}
+                                                        <span class="badge bg-danger">Sin asientos</span>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+
+                                            <div class="route-details mb-3">
+                                                <div class="row text-sm">
+                                                    <div class="col-6">
+                                                        <small class="text-muted">
+                                                            <i class="fas fa-calendar me-1"></i>
+                                                            {{ ruta.fecha }}
+                                                        </small>
+                                                    </div>
+                                                    <div class="col-6">
+                                                        <small class="text-muted">
+                                                            <i class="fas fa-clock me-1"></i>
+                                                            {{ ruta.hora_salida }}
+                                                        </small>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="conductor-info mb-3">
+                                                <small class="text-muted">
+                                                    <i class="fas fa-user-tie me-1"></i>
+                                                    Conductor: <strong>{{ ruta.conductor.nombre_completo }}</strong>
+                                                </small>
+                                            </div>
+
+                                            <div class="d-grid">
+                                                {% if ruta.asientos_disponibles > 0 %}
+                                                    <form method="post" action="{% url 'reservar_ruta' ruta.id %}">
+                                                        {% csrf_token %}
+                                                        <button type="submit" class="btn btn-success btn-sm">
+                                                            <i class="fas fa-ticket-alt me-2"></i>
+                                                            Reservar asiento
+                                                        </button>
+                                                    </form>
+                                                {% else %}
+                                                    <button class="btn btn-outline-secondary btn-sm" disabled>
+                                                        <i class="fas fa-times me-2"></i>
+                                                        No disponible
+                                                    </button>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                {% if ruta.asientos_disponibles > 0 %}
-                                    <form method="post" action="{% url 'reservar_ruta' ruta.id %}">
-                                        {% csrf_token %}
-                                        <button type="submit" class="btn btn-success">Reservar</button>
-                                    </form>
-                                {% else %}
-                                    <span class="badge bg-danger">Sin asientos</span>
-                                {% endif %}
-                            </li>
-                        {% endfor %}
-                        </ul>
+                            {% endfor %}
+                        </div>
                     {% else %}
-                        <p>No hay rutas disponibles.</p>
+                        <div class="text-center py-5">
+                            <div class="mb-3">
+                                <i class="fas fa-search fa-3x text-muted"></i>
+                            </div>
+                            <h6 class="text-muted">No hay rutas disponibles en este momento</h6>
+                            <p class="text-muted small">
+                                Las rutas aparecerán aquí cuando los conductores las publiquen
+                            </p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Tus reservas -->
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-bookmark me-2"></i>
+                        Tus reservas
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if reservas %}
+                        {% for reserva in reservas %}
+                            <div class="reservation-item p-3 mb-3 bg-light rounded">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <h6 class="mb-1 fw-bold">
+                                        <i class="fas fa-route me-2 text-primary"></i>
+                                        {{ reserva.ruta.origen }}
+                                    </h6>
+                                    <span class="badge bg-primary">Confirmado</span>
+                                </div>
+                                
+                                {% if reserva.ruta.sitio_llegada %}
+                                    <p class="text-muted small mb-2">
+                                        <i class="fas fa-arrow-right me-2"></i>
+                                        {{ reserva.ruta.sitio_llegada }}
+                                    </p>
+                                {% endif %}
+                                
+                                <div class="reservation-details">
+                                    <small class="d-block text-muted mb-1">
+                                        <i class="fas fa-calendar me-1"></i>
+                                        {{ reserva.ruta.fecha }}
+                                    </small>
+                                    <small class="d-block text-muted mb-1">
+                                        <i class="fas fa-clock me-1"></i>
+                                        {{ reserva.ruta.hora_salida }}
+                                    </small>
+                                    <small class="d-block text-muted">
+                                        <i class="fas fa-user-tie me-1"></i>
+                                        {{ reserva.ruta.conductor.nombre_completo }}
+                                    </small>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-4">
+                            <div class="mb-3">
+                                <i class="fas fa-calendar-times fa-2x text-muted"></i>
+                            </div>
+                            <p class="text-muted mb-0">No tienes reservas aún</p>
+                            <small class="text-muted">
+                                Usa el botón "Ver rutas" para encontrar viajes
+                            </small>
+                        </div>
                     {% endif %}
                 </div>
             </div>
 
-            <!-- Reservas del pasajero -->
-            <div class="card">
+            <!-- Información útil -->
+            <div class="card mt-4">
+                <div class="card-header bg-light">
+                    <h6 class="card-title mb-0">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Consejos
+                    </h6>
+                </div>
                 <div class="card-body">
-                    <h5 class="card-title">Tus reservas</h5>
-                    {% if reservas %}
-                        <ul class="list-group">
-                        {% for reserva in reservas %}
-                            <li class="list-group-item">
-                                <b>Ruta:</b> {{ reserva.ruta.origen }} → {{ reserva.ruta.sitio_llegada }}<br>
-                                <b>Fecha:</b> {{ reserva.ruta.fecha }}<br>
-                                <b>Hora de salida:</b> {{ reserva.ruta.hora_salida }}<br>
-                                <b>Conductor:</b> {{ reserva.ruta.conductor.nombre_completo }}
-                            </li>
-                        {% endfor %}
-                        </ul>
-                    {% else %}
-                        <p>No tienes reservas aún.</p>
-                    {% endif %}
+                    <div class="d-flex mb-3">
+                        <div class="me-3">
+                            <i class="fas fa-handshake text-primary"></i>
+                        </div>
+                        <div>
+                            <small><strong>Sé puntual</strong><br>
+                            Llega a tiempo al punto de encuentro</small>
+                        </div>
+                    </div>
+                    <div class="d-flex mb-3">
+                        <div class="me-3">
+                            <i class="fas fa-comments text-success"></i>
+                        </div>
+                        <div>
+                            <small><strong>Comunícate</strong><br>
+                            Mantén contacto con el conductor</small>
+                        </div>
+                    </div>
+                    <div class="d-flex">
+                        <div class="me-3">
+                            <i class="fas fa-star text-warning"></i>
+                        </div>
+                        <div>
+                            <small><strong>Sé respetuoso</strong><br>
+                            Respeta las reglas del conductor</small>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-</body>
 {% endblock content %}
