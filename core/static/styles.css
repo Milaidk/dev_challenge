@@ -1,6 +1,9 @@
 body {
-    background: linear-gradient(135deg, #7b8cff 0%, #a084ee 100%);
     min-height: 100vh;
+    background-image: linear-gradient(135deg, #7b8cff 10%, #a084ee60 100%), url('./images/pucelogo.png');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center center;
 }
 
 .card {
@@ -12,12 +15,9 @@ body {
     font-weight: 500;
 }
 
-footer{
+footer {
     background: #ddb94d24;
     padding: 0.4rem 0;
     text-align: center;
     margin-top: 6rem;
 }
-
-
-
