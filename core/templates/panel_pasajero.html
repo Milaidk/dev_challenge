@@ -5,8 +5,9 @@
 
 {% block content %}
 <div class="container">
+    
     <div class="row justify-content-center">
-        <div class="col-md-10">
+        <div class="d-flex col-md-10">
             <div class="card mb-4">
                 <div class="card-body">
                     <h5 class="card-title">Rutas disponibles</h5>
@@ -37,7 +38,7 @@
                     {% endif %}
                 </div>
             </div>
-            <div class="card">
+            <div class="card mb-4">
                 <div class="card-body">
                     <h5 class="card-title">Tus reservas</h5>
                     {% if reservas %}
@@ -59,6 +60,5 @@
         </div>
     </div>
 </div>
-
 </body>
 {% endblock content %}
