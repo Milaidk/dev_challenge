@@ -1,30 +1,11 @@
-{% load static %}
-{% load form_tags %}
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro | TinUdriv</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            background: linear-gradient(135deg, #7b8cff 0%, #a084ee 100%);
-            min-height: 100vh;
-        }
-        .card {
-            border-radius: 20px;
-            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
-        }
-        .form-label {
-            font-weight: 500;
-        }
-    </style>
-</head>
-<body>
+{% extends "base.html" %} 
+{% load widget_tweaks %} 
+{% load static %} 
+{% block title %} Registro |TinUdriv{% endblock title %}
+{% block content %}
 <div class="container d-flex align-items-center justify-content-center min-vh-100">
-    <div class="card p-4" style="width: 100%; max-width: 430px;">
-        <h2 class="text-center fw-bold" style="color: #5a6ff0;">TinUdriv</h2>
+    <div class="card p-4" style="width: 100%; max-width: 430px">
+        <h2 class="text-center fw-bold" style="color: #5a6ff0">TinUdriv</h2>
         <p class="text-center mb-4">Crea tu cuenta y únete al viaje 🚗</p>
         <form method="post">
             {% csrf_token %}
@@ -71,6 +52,4 @@
         </div>
     </div>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html> 
+{% endblock content %}

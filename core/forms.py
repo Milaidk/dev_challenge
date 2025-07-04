@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from .models import Usuario
+from .models import Usuario, Ruta
 from django import template
 
 class RegistroForm(UserCreationForm):
@@ -20,12 +20,13 @@ class RegistroForm(UserCreationForm):
         if commit:
             user.save()
         return user
+    
+class RutaForm(forms.ModelForm):
+    class Meta: 
+        model = Ruta
+        fields = ['origen', 'fecha', 'hora_salida', 'asientos_disponibles', 'sitio_llegada']
+    
+        
 
 class LoginForm(AuthenticationForm):
     username = forms.EmailField(label='Correo institucional')
-
-register = template.Library()
-
-@register.filter(name='add_class')
-def add_class(field, css):
-    return field.as_widget(attrs={"class": css}) 

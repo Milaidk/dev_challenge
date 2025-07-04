@@ -2,6 +2,8 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
 from .forms import RegistroForm, LoginForm
+from django.contrib import messages
+from .forms import RutaForm
 from .models import Ruta, Reserva, Usuario
 from django.utils import timezone
 
@@ -38,6 +40,25 @@ def login_view(request):
 def logout_view(request):
     logout(request)
     return redirect('login')
+
+@login_required
+def editar_ruta_view(request, ruta_id):
+    try:
+        ruta = Ruta.objects.get(id=ruta_id, conductor=request.user)
+    except Ruta.DoesNotExist:
+        messages.error(request, "La ruta no existe o no te pertenece.")
+        return redirect('panel')
+    
+    if request.method == 'POST':
+        form = RutaForm(request.POST, instance=ruta)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Ruta actualizada exitosamente.")
+            return redirect('panel')
+    else:
+        form = RutaForm(instance=ruta)
+        
+    return render(request, 'editar_ruta.html', {'form': form, 'ruta': ruta})
 
 
 @login_required

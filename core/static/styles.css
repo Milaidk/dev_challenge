@@ -1,0 +1,23 @@
+body {
+    background: linear-gradient(135deg, #7b8cff 0%, #a084ee 100%);
+    min-height: 100vh;
+}
+
+.card {
+    border-radius: 20px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+}
+
+.form-label {
+    font-weight: 500;
+}
+
+footer{
+    background: #ddb94d24;
+    padding: 0.4rem 0;
+    text-align: center;
+    margin-top: 6rem;
+}
+
+
+

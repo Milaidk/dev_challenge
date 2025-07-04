@@ -1,0 +1,52 @@
+{# myapp/templates/editar_ruta.html #}
+{% extends "base.html" %}
+{% load widget_tweaks %}
+{% load static %}
+
+{% block title %}Editar Ruta | TinUdriv{% endblock title %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Edicion de rutas actuales</h5>
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ form.non_field_errors }}
+
+                        <div class="mb-2">
+                            {{ form.origen.label_tag }}
+                            {{ form.origen|add_class:'form-control' }}
+                            {{ form.origen.errors }}
+                        </div>
+                        <div class="mb-2">
+                            {{ form.fecha.label_tag }}
+                            {{ form.fecha|add_class:'form-control' }}
+                            {{ form.fecha.errors }}
+                        </div>
+                        <div class="mb-2">
+                            {{ form.hora_salida.label_tag }}
+                            {{ form.hora_salida|add_class:'form-control' }}
+                            {{ form.hora_salida.errors }}
+                        </div>
+                        <div class="mb-2">
+                            {{ form.asientos_disponibles.label_tag }}
+                            {{ form.asientos_disponibles|add_class:'form-control' }}
+                            {{ form.asientos_disponibles.errors }}
+                        </div>
+                        <div class="mb-2">
+                            {{ form.sitio_llegada.label_tag }}
+                            {{ form.sitio_llegada|add_class:'form-control' }}
+                            {{ form.sitio_llegada.errors }}
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100">Guardar Cambios</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
