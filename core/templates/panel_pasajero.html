@@ -16,7 +16,7 @@
                         </div>
                         <div>
                             <h3 class="card-title mb-1">
-                                ¡Bienvenido, {{ user.first_name|default:user.username }}!
+                                ¡Bienvenido, {{ user.nombre_completo }}!
                             </h3>
                             <p class="mb-0 opacity-90">
                                 <i class="fas fa-map-marked-alt me-2"></i>
@@ -38,6 +38,45 @@
                         <i class="fas fa-route me-2"></i>
                         Rutas disponibles
                     </h5>
+                        <nav aria-label="Page navigation" class="mt-4">
+                            <ul class="pagination justify-content-center">
+                                {% if rutas.has_previous %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ rutas.previous_page_number }}" aria-label="Previous">
+                                            <span aria-hidden="true">&laquo;</span>
+                                        </a>
+                                    </li>
+                                {% else %}
+                                    <li class="page-item disabled">
+                                        <span class="page-link" aria-hidden="true">&laquo;</span>
+                                    </li>
+                                {% endif %}
+
+                                {# Genera los números de página #}
+                                {% for i in rutas.paginator.page_range %}
+                                    {% if rutas.number == i %}
+                                        <li class="page-item active" aria-current="page">
+                                            <span class="page-link">{{ i }}</span>
+                                        </li>
+                                    {% else %}
+                                        <li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
+                                    {% endif %}
+                                {% endfor %}
+
+                                {% if rutas.has_next %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ rutas.next_page_number }}" aria-label="Next">
+                                            <span aria-hidden="true">&raquo;</span>
+                                        </a>
+                                    </li>
+                                {% else %}
+                                    <li class="page-item disabled">
+                                        <span class="page-link" aria-hidden="true">&raquo;</span>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+
                 </div>
                 <div class="card-body">
                     {% if rutas %}

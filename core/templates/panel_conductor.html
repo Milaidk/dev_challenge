@@ -39,6 +39,47 @@
                         Mis rutas publicadas
                     </h5>
                 </div>
+
+                        <nav aria-label="Page navigation" class="mt-4">
+                            <ul class="pagination justify-content-center">
+                                {% if rutas.has_previous %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ rutas.previous_page_number }}" aria-label="Previous">
+                                            <span aria-hidden="true">&laquo;</span>
+                                        </a>
+                                    </li>
+                                {% else %}
+                                    <li class="page-item disabled">
+                                        <span class="page-link" aria-hidden="true">&laquo;</span>
+                                    </li>
+                                {% endif %}
+
+                                {# Genera los números de página #}
+                                {% for i in rutas.paginator.page_range %}
+                                    {% if rutas.number == i %}
+                                        <li class="page-item active" aria-current="page">
+                                            <span class="page-link">{{ i }}</span>
+                                        </li>
+                                    {% else %}
+                                        <li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
+                                    {% endif %}
+                                {% endfor %}
+
+                                {% if rutas.has_next %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ rutas.next_page_number }}" aria-label="Next">
+                                            <span aria-hidden="true">&raquo;</span>
+                                        </a>
+                                    </li>
+                                {% else %}
+                                    <li class="page-item disabled">
+                                        <span class="page-link" aria-hidden="true">&raquo;</span>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+
+
                 <div class="card-body">
                     {% if rutas %}
                         <div class="row g-4">
@@ -133,7 +174,7 @@
                                 Punto de origen
                             </label>
                             <input type="text" class="form-control" name="origen" 
-                                   placeholder="Ej: Universidad Central" required>
+                                placeholder="Ej: Universidad Central" required>
                             <div class="form-text">
                                 <small>Especifica el lugar exacto de partida</small>
                             </div>

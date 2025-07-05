@@ -1,3 +1,4 @@
+from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
@@ -65,12 +66,36 @@ def editar_ruta_view(request, ruta_id):
 def panel_view(request):
     if request.user.tipo_usuario == 'conductor':
         rutas = Ruta.objects.filter(conductor=request.user)
-        return render(request, 'panel_conductor.html', {'rutas': rutas})
+        all_rutas = Ruta.objects.all().order_by('fecha', 'hora_salida')
+        rutas_por_pagina = 1 
+        paginator = Paginator(all_rutas, rutas_por_pagina)
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+        
+        context = {
+        'user': request.user,
+        'rutas': page_obj,
+        }
+        
+        return render(request, 'panel_conductor.html', context)
     else:
-        # Como pasajero, ver todas las rutas disponibles (incluyendo las propias si las tiene)
-        rutas = Ruta.objects.filter(fecha__gte=timezone.now().date(), asientos_disponibles__gt=0)
-        reservas = Reserva.objects.filter(pasajero=request.user)
-        return render(request, 'panel_pasajero.html', {'rutas': rutas, 'reservas': reservas})
+        # rutas = Ruta.objects.filter(fecha__gte=timezone.now().date(), asientos_disponibles__gt=0)
+        all_rutas_disponibles = Ruta.objects.filter(
+            fecha__gte=timezone.now().date(),
+            asientos_disponibles__gt=0
+        ).order_by('fecha', 'hora_salida')
+        rutas_por_pagina = 1
+        paginator = Paginator(all_rutas_disponibles, rutas_por_pagina)
+        page_number = request.GET.get('page')
+        rutas_page_obj = paginator.get_page(page_number)
+        reservas_pasajero = Reserva.objects.filter(pasajero=request.user).order_by('-ruta__fecha', '-ruta__hora_salida')
+        context = {
+            'user': request.user,
+            'rutas': rutas_page_obj,
+            'reservas': reservas_pasajero, 
+        }
+        # reservas = Reserva.objects.filter(pasajero=request.user)
+        return render(request, 'panel_pasajero.html', context)
 
 
 @login_required
