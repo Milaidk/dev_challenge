@@ -3,6 +3,7 @@ from django.db import models
 
 class Usuario(AbstractUser):
     nombre_completo = models.CharField(max_length=100)
+    origen = models.CharField(max_length=100) 
     correo_institucional = models.EmailField(unique=True)
     telefono = models.CharField(max_length=20)
     facultad = models.CharField(max_length=100)
@@ -13,10 +14,10 @@ class Usuario(AbstractUser):
     tipo_usuario = models.CharField(max_length=10, choices=TIPO_USUARIO_CHOICES)
 
     USERNAME_FIELD = 'correo_institucional'
-    REQUIRED_FIELDS = ['username', 'nombre_completo', 'telefono', 'facultad', 'tipo_usuario']
+    REQUIRED_FIELDS = ['username', 'nombre_completo', 'telefono', 'facultad', 'tipo_usuario', 'origen']
 
     def __str__(self):
-        return self.nombre_completo
+        return self.nombre_completo.capitalize()
 
 class Ruta(models.Model):
     conductor = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='rutas')

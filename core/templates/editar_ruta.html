@@ -21,7 +21,7 @@
             <!-- Formulario de edición -->
             <div class="card">
                 <div class="card-body">
-                    <form method="post">
+                    <form id="form-editar-ruta" method="post">
                         {% csrf_token %}
                         
                         {% if form.non_field_errors %}
@@ -35,7 +35,9 @@
                             <label for="{{ form.origen.id_for_label }}" class="form-label">
                                 <i class="fas fa-map-marker-alt me-2"></i>{{ form.origen.label }}
                             </label>
-                            {{ form.origen|add_class:'form-control'|attr:'placeholder:Ej: Universidad Central' }}
+                            <div id="autocomplete-list" class="autocomplete-items"></div>
+                            <div id="info-sector"></div>
+                            {{ form.origen|add_class:'form-control'|attr:'placeholder:Ej: Universidad Central'|attr:'id:origen' }}
                             {% if form.origen.errors %}
                                 <div class="text-danger mt-1">
                                     <small>{{ form.origen.errors }}</small>
@@ -47,7 +49,9 @@
                             <label for="{{ form.sitio_llegada.id_for_label }}" class="form-label">
                                 <i class="fas fa-flag-checkered me-2"></i>{{ form.sitio_llegada.label }}
                             </label>
-                            {{ form.sitio_llegada|add_class:'form-control'|attr:'placeholder:Ej: Centro Comercial Norte' }}
+                            <div id="autocomplete-list" class="autocomplete-items"></div>
+                            <div id="info-sector"></div>
+                            {{ form.sitio_llegada|add_class:'form-control'|attr:'readonly:true'|attr:'value:PONTIFICIA UNIVERSIDAD CATOLICA DEL ECUADOR' }}
                             {% if form.sitio_llegada.errors %}
                                 <div class="text-danger mt-1">
                                     <small>{{ form.sitio_llegada.errors }}</small>

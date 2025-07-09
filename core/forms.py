@@ -6,7 +6,7 @@ from django import template
 class RegistroForm(UserCreationForm):
     class Meta:
         model = Usuario
-        fields = ['nombre_completo', 'correo_institucional', 'password1', 'password2', 'telefono', 'facultad', 'tipo_usuario']
+        fields = ['nombre_completo', 'origen','correo_institucional', 'password1', 'password2', 'telefono', 'facultad', 'tipo_usuario']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -42,6 +42,7 @@ class RegistroForm(UserCreationForm):
     def save(self, commit=True):
         user = super().save(commit=False)
         user.username = self.cleaned_data['correo_institucional']
+        user.origen = self.cleaned_data['origen'].upper()
         if commit:
             user.save()
         return user

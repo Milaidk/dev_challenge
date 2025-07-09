@@ -165,7 +165,7 @@
                     </h5>
                 </div>
                 <div class="card-body">
-                    <form method="post" action="{% url 'publicar_ruta' %}">
+                    <form id="form-publicar-ruta" method="post" action="{% url 'publicar_ruta' %}">
                         {% csrf_token %}
                         
                         <div class="mb-3">
@@ -173,9 +173,12 @@
                                 <i class="fas fa-map-marker-alt me-2"></i>
                                 Punto de origen
                             </label>
-                            <input type="text" class="form-control" name="origen" 
-                                placeholder="Ej: Universidad Central" required>
-                            <div class="form-text">
+                            <div id="autocomplete-list" class="autocomplete-items"></div>
+                            <div id="info-sector"></div>
+                            <input id="origen" type="text" class="form-control" name="origen" 
+                                placeholder="Ej: Universidad Central" autocomplete="off" required>
+                            <div id="sugerencias-rutas" class="mt-2"></div>
+                                <div class="form-text">
                                 <small>Especifica el lugar exacto de partida</small>
                             </div>
                         </div>
@@ -183,12 +186,12 @@
                         <div class="mb-3">
                             <label for="sitio_llegada" class="form-label">
                                 <i class="fas fa-flag-checkered me-2"></i>
-                                Destino (opcional)
+                                Destino
                             </label>
                             <input type="text" class="form-control" name="sitio_llegada" 
-                                   placeholder="Ej: Centro Comercial Norte">
+                                value="PONTIFICIA UNIVERSIDAD CATOLICA DEL ECUADOR" readonly>
                             <div class="form-text">
-                                <small>Punto de llegada o destino final</small>
+                                <small>Destino final</small>
                             </div>
                         </div>
 
@@ -199,7 +202,10 @@
                                         <i class="fas fa-calendar me-2"></i>
                                         Fecha
                                     </label>
-                                    <input type="date" class="form-control" name="fecha" required>
+                                    <input id="fecha" type="date" class="form-control" name="fecha" min="{{ today }}" required>
+                                    <div id="mensaje-fecha" class="text-danger mt-1" style="display: none;">
+                                        <small>La fecha no puede ser anterior a hoy.</small>
+                                    </div>
                                 </div>
                             </div>
                             <div class="col-6">

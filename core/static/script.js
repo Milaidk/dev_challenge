@@ -1,40 +1,42 @@
 // Función para mostrar/ocultar rutas con animación mejorada
+
+
 function toggleRutas() {
     const contenedor = document.getElementById('rutasContainer');
     const button = document.querySelector('[onclick="toggleRutas()"]');
-    
+
     if (contenedor.style.display === 'none' || contenedor.style.display === '') {
         // Mostrar rutas
         contenedor.style.display = 'block';
         contenedor.classList.add('fade-in');
-        
+
         // Actualizar texto del botón
         if (button) {
             button.innerHTML = '<i class="fas fa-eye-slash me-1"></i> Ocultar rutas';
             button.classList.remove('btn-outline-primary');
             button.classList.add('btn-outline-secondary');
         }
-        
+
         // Scroll suave hacia las rutas
         setTimeout(() => {
-            contenedor.scrollIntoView({ 
-                behavior: 'smooth', 
-                block: 'start' 
+            contenedor.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
             });
         }, 100);
-        
+
     } else {
         // Ocultar rutas
         contenedor.classList.remove('fade-in');
         contenedor.classList.add('fade-out');
-        
+
         // Actualizar texto del botón
         if (button) {
             button.innerHTML = '<i class="fas fa-route me-1"></i> Ver rutas';
             button.classList.remove('btn-outline-secondary');
             button.classList.add('btn-outline-primary');
         }
-        
+
         setTimeout(() => {
             contenedor.style.display = 'none';
             contenedor.classList.remove('fade-out');
@@ -43,7 +45,15 @@ function toggleRutas() {
 }
 
 // Animaciones CSS dinámicas
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
+    const origenInput = document.getElementById('origen');
+    const autocompleteList = document.getElementById('autocomplete-list');
+    const form = document.getElementById('form-publicar-ruta');
+    let sectoresValidos = [];
+    const infoSector = document.getElementById('info-sector');
+    const fechaInput = document.getElementById("fecha");
+    const mensaje = document.getElementById("mensaje-fecha");
+
     // Agregar clases de animación
     const style = document.createElement('style');
     style.textContent = `
@@ -178,9 +188,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     `;
     document.head.appendChild(style);
-    
+
     // Agregar efectos de scroll
-    window.addEventListener('scroll', function() {
+    window.addEventListener('scroll', function () {
         const navbar = document.querySelector('.navbar');
         if (navbar && navbar.classList.contains('fixed-top')) {
             if (window.scrollY > 50) {
@@ -192,16 +202,16 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
-    
+
     // Agregar loading state a los formularios
     const forms = document.querySelectorAll('form');
     forms.forEach(form => {
-        form.addEventListener('submit', function(e) {
+        form.addEventListener('submit', function (e) {
             const submitBtn = form.querySelector('button[type="submit"]');
             if (submitBtn) {
                 submitBtn.classList.add('btn-loading');
                 submitBtn.disabled = true;
-                
+
                 // Remover loading state después de 5 segundos como backup
                 setTimeout(() => {
                     submitBtn.classList.remove('btn-loading');
@@ -210,37 +220,102 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-    
+
     // Validación en tiempo real para formularios
     const inputs = document.querySelectorAll('.form-control, .form-select');
     inputs.forEach(input => {
-        input.addEventListener('blur', function() {
+        input.addEventListener('blur', function () {
             validateField(this);
         });
-        
-        input.addEventListener('input', function() {
+
+        input.addEventListener('input', function () {
             if (this.classList.contains('is-invalid')) {
                 validateField(this);
             }
         });
     });
-    
+
     // Auto-focus en el primer campo de formularios
     const firstInput = document.querySelector('.form-control');
     if (firstInput && !firstInput.value) {
         firstInput.focus();
     }
-    
+
     // Confirmar antes de enviar formularios importantes
     const deleteButtons = document.querySelectorAll('[data-confirm]');
     deleteButtons.forEach(button => {
-        button.addEventListener('click', function(e) {
+        button.addEventListener('click', function (e) {
             const message = this.getAttribute('data-confirm') || '¿Estás seguro?';
             if (!confirm(message)) {
                 e.preventDefault();
             }
         });
     });
+
+    //rutas API
+    origenInput.addEventListener('input', function () {
+        const valor = this.value.trim();
+        autocompleteList.innerHTML = '';
+        infoSector.innerHTML = '';
+        if (valor.length < 2) return;
+
+        fetch(`/api/rutas-sector/?sector=${encodeURIComponent(valor)}`)
+            .then(response => response.json())
+            .then(data => {
+                sectoresValidos = data.sectores.map(s => s.nombre.toUpperCase());
+                const sectores = data.sectores || [];
+                sectores.forEach(sector => {
+                    const item = document.createElement('div');
+                    item.textContent = sector.nombre;
+                    item.addEventListener('click', function () {
+                        origenInput.value = sector.nombre;
+                        autocompleteList.innerHTML = '';
+                        mostrarInfoSector(sector);
+                    });
+                    autocompleteList.appendChild(item);
+                });
+            });
+    });
+
+    function mostrarInfoSector(sector) {
+        let html = `<strong>Barrios Cercanos:</strong><ul>`;
+        sector.barriosCercanos.forEach(b => {
+            html += `<li>${b}</li>`;
+        });
+        html += `</ul>`;
+        infoSector.innerHTML = html;
+    }
+
+    // Cierra lista si haces clic fuera
+    document.addEventListener('click', function (e) {
+        if (!autocompleteList.contains(e.target) && e.target !== origenInput) {
+            autocompleteList.innerHTML = '';
+        }
+    });
+
+    // Validación al enviar el formulario
+    form.addEventListener('submit', function (e) {
+        const valor = origenInput.value.trim().toUpperCase();
+        if (!sectoresValidos.includes(valor)) {
+            e.preventDefault();
+            alert('⚠️ Debes seleccionar un sector válido de la lista.');
+            origenInput.focus();
+        }
+    });
+
+    fechaInput.addEventListener("input", function () {
+            const hoy = new Date();
+            hoy.setHours(0, 0, 0, 0);  // Eliminamos la hora
+            const fechaIngresada = new Date(this.value);
+
+            if (fechaIngresada < hoy) {
+                mensaje.style.display = "block";
+                this.classList.add("is-invalid");
+            } else {
+                mensaje.style.display = "none";
+                this.classList.remove("is-invalid");
+            }
+        });
 });
 
 // Función de validación de campos
@@ -248,7 +323,7 @@ function validateField(field) {
     const value = field.value.trim();
     let isValid = true;
     let message = '';
-    
+
     // Validaciones específicas por tipo
     if (field.type === 'email') {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -257,7 +332,7 @@ function validateField(field) {
             message = 'Por favor ingresa un email válido';
         }
     }
-    
+
     if (field.type === 'tel') {
         const phoneRegex = /^[\+]?[0-9\s\-\(\)]+$/;
         if (value && !phoneRegex.test(value)) {
@@ -265,12 +340,12 @@ function validateField(field) {
             message = 'Por favor ingresa un teléfono válido';
         }
     }
-    
+
     if (field.required && !value) {
         isValid = false;
         message = 'Este campo es obligatorio';
     }
-    
+
     // Aplicar estilos de validación
     if (isValid) {
         field.classList.remove('is-invalid');
@@ -279,7 +354,7 @@ function validateField(field) {
         field.classList.remove('is-valid');
         field.classList.add('is-invalid');
     }
-    
+
     // Mostrar mensaje de error
     let feedback = field.parentNode.querySelector('.invalid-feedback');
     if (!feedback && !isValid) {
@@ -287,7 +362,7 @@ function validateField(field) {
         feedback.className = 'invalid-feedback';
         field.parentNode.appendChild(feedback);
     }
-    
+
     if (feedback) {
         feedback.textContent = message;
         feedback.style.display = isValid ? 'none' : 'block';
@@ -297,7 +372,7 @@ function validateField(field) {
 // Función para mostrar notificaciones toast
 function showToast(message, type = 'success') {
     const toastContainer = document.getElementById('toast-container') || createToastContainer();
-    
+
     const toast = document.createElement('div');
     toast.className = `toast align-items-center text-white bg-${type} border-0`;
     toast.setAttribute('role', 'alert');
@@ -310,12 +385,12 @@ function showToast(message, type = 'success') {
             <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
         </div>
     `;
-    
+
     toastContainer.appendChild(toast);
-    
+
     const bsToast = new bootstrap.Toast(toast);
     bsToast.show();
-    
+
     // Remover el toast después de que se oculte
     toast.addEventListener('hidden.bs.toast', () => {
         toast.remove();
@@ -334,9 +409,9 @@ function createToastContainer() {
 
 // Función para formatear fechas
 function formatDate(date) {
-    const options = { 
-        year: 'numeric', 
-        month: 'long', 
+    const options = {
+        year: 'numeric',
+        month: 'long',
         day: 'numeric',
         weekday: 'long'
     };

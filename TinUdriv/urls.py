@@ -28,4 +28,5 @@ urlpatterns = [
     path('publicar/', views.publicar_ruta_view, name='publicar_ruta'),
     path('reservar/<int:ruta_id>/', views.reservar_ruta_view, name='reservar_ruta'),
     path('ruta/editar/<int:ruta_id>/', views.editar_ruta_view, name='editar_ruta'),
+    path('api/rutas-sector/', views.api_rutas_sector, name='api_rutas_sector'),
 ]
