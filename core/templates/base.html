@@ -62,8 +62,63 @@
 
     <main class="main">
         <div class="container">
+            {% if user.is_authenticated %}
+            <div class="bienvenidaychat">
+                <div class="bienvenida">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card bg-primary text-white">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <div class="me-3">
+                                            <i class="fas fa-car fa-3x opacity-75"></i>
+                                        </div>
+                                        <div>
+                                            <h3 class="card-title mb-1">
+                                                ¡Bienvenido, {{ user.nombre_completo }}!
+                                            </h3>
+                                            <p class="mb-0 opacity-90">
+                                                <i class="fas fa-steering-wheel me-2"></i>
+                                                Publica rutas y ayuda a otros estudiantes a llegar a su destino
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card mt-1">
+                        <div class="card-header bg-light">
+                            <strong><i class="fas fa-comments me-1"></i>Mensajes recientes</strong>
+                        </div>
+                        <div class="card-body" style="max-height: 200px; overflow-y: auto;">
+                            {% for mensaje in mensajes %}
+                            <div class="mb-2">
+                                <strong>{{ mensaje.emisor.nombre_completo }}</strong> dice:
+                                <div class="
+                                    alert p-2 mt-2 mb-0 
+                                    {% if mensaje.emisor.tipo_usuario == 'conductor' %}
+                                        alert-primary
+                                    {% else %}
+                                        alert-success
+                                    {% endif %}
+                                ">
+                                    {{ mensaje.contenido }}
+                                    <br>
+                                    <small class="text-muted">{{ mensaje.timestamp|date:"d M Y H:i" }}</small>
+                                </div>
+                            </div>
+                            {% empty %}
+                            <p class="text-muted">No hay mensajes por el momento.</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+            </div>
+            {% endif %}
             {% block content %}{% endblock content %}
         </div>
+        
         <div class="modal fade" id="mensajeModal" tabindex="-1" aria-labelledby="mensajeModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div id="mensajeModal" class="modal-content">
@@ -93,18 +148,16 @@
                                 <i class="fas fa-comment me-1"></i> Frase
                             </label>
                             <select name="mensaje" class="form-select" required>
-                                {% if user.tipo_usuario == 'pasajero' %}
-                                    <option value="¡Gracias por llevarnos con tanto cuidado! 🙌">¡Gracias por llevarnos con tanto cuidado! 🙌</option>
-                                    <option value="Tu puntualidad y buena onda se agradecen muchísimo 😊">Tu puntualidad y buena onda se agradecen muchísimo 😊</option>
-                                    <option value="¡Viajar contigo siempre es un gusto! 🚗✨">¡Viajar contigo siempre es un gusto! 🚗✨</option>
-                                    <option value="Gracias por ser tan responsable y amable 🙏">Gracias por ser tan responsable y amable 🙏</option>
-                                    <option value="¡Nos haces el viaje mucho más fácil! 💙">¡Nos haces el viaje mucho más fácil! 💙</option>
-                                    <option value="¡Gracias por confiar en mí para llevarlos! 🚘">¡Gracias por confiar en mí para llevarlos! 🚘</option>
-                                    <option value="Haré lo posible por que el viaje sea seguro y cómodo 💪😊">Haré lo posible por que el viaje sea seguro y cómodo 💪😊</option>
-                                    <option value="¡Me alegra compartir este trayecto con ustedes! 😄">¡Me alegra compartir este trayecto con ustedes! 😄</option>
-                                    <option value="Gracias por su buena vibra y respeto 🙏✨">Gracias por su buena vibra y respeto 🙏✨</option>
-                                    <option value="Siempre es un placer llevar a personas tan chéveres 🚗💙">Siempre es un placer llevar a personas tan chéveres 🚗💙</option>
-                                {% endif %}
+                                <option value="¡Gracias por llevarnos con tanto cuidado! 🙌">¡Gracias por llevarnos con tanto cuidado! 🙌</option>
+                                <option value="Tu puntualidad y buena onda se agradecen muchísimo 😊">Tu puntualidad y buena onda se agradecen muchísimo 😊</option>
+                                <option value="¡Viajar contigo siempre es un gusto! 🚗✨">¡Viajar contigo siempre es un gusto! 🚗✨</option>
+                                <option value="Gracias por ser tan responsable y amable 🙏">Gracias por ser tan responsable y amable 🙏</option>
+                                <option value="¡Nos haces el viaje mucho más fácil! 💙">¡Nos haces el viaje mucho más fácil! 💙</option>
+                                <option value="¡Gracias por confiar en mí para llevarlos! 🚘">¡Gracias por confiar en mí para llevarlos! 🚘</option>
+                                <option value="Haré lo posible por que el viaje sea seguro y cómodo 💪😊">Haré lo posible por que el viaje sea seguro y cómodo 💪😊</option>
+                                <option value="¡Me alegra compartir este trayecto con ustedes! 😄">¡Me alegra compartir este trayecto con ustedes! 😄</option>
+                                <option value="Gracias por su buena vibra y respeto 🙏✨">Gracias por su buena vibra y respeto 🙏✨</option>
+                                <option value="Siempre es un placer llevar a personas tan chéveres 🚗💙">Siempre es un placer llevar a personas tan chéveres 🚗💙</option>
                             </select>
                         </div>
                         <div class="modal-footer">

@@ -79,10 +79,8 @@ def enviar_mensaje_view(request):
 
         # Evita que el mensaje se envíe a uno mismo
         receptores = Usuario.objects.filter(tipo_usuario=tipo_destinatario).exclude(id=emisor.id)
-
         for receptor in receptores:
             Mensaje.objects.create(emisor=emisor, receptor=receptor, contenido=contenido)
-
         messages.success(request, f"Mensaje enviado a {tipo_destinatario}s.")
 
     return redirect('panel')
@@ -134,14 +132,24 @@ def panel_view(request):
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
         
-        mensajes = Mensaje.objects.filter(
+        mensajes_qs = Mensaje.objects.filter(
             receptor__tipo_usuario=request.user.tipo_usuario
-        ).order_by('-timestamp')[:10]
+        ).order_by('-timestamp')
+
+        mensajes_unicos = []
+        contenidos_vistos = set()
+
+        for mensaje in mensajes_qs:
+            if mensaje.contenido not in contenidos_vistos:
+                mensajes_unicos.append(mensaje)
+                contenidos_vistos.add(mensaje.contenido)
+            if len(mensajes_unicos) >= 10:
+                break
         
         context = {
         'user': request.user,
         'rutas': page_obj,
-        'mensajes': mensajes,
+        'mensajes': mensajes_unicos,
         }
         
         return render(request, 'panel_conductor.html', context)
@@ -174,15 +182,25 @@ def panel_view(request):
         ).order_by('-ruta__fecha', '-ruta__hora_salida')
         
    
-        mensajes = Mensaje.objects.filter(
+        mensajes_qs = Mensaje.objects.filter(
             receptor__tipo_usuario=request.user.tipo_usuario
-        ).order_by('-timestamp')[:10]
+        ).order_by('-timestamp')
+
+        mensajes_unicos = []
+        contenidos_vistos = set()
+
+        for mensaje in mensajes_qs:
+            if mensaje.contenido not in contenidos_vistos:
+                mensajes_unicos.append(mensaje)
+                contenidos_vistos.add(mensaje.contenido)
+            if len(mensajes_unicos) >= 10:
+                break
 
         context = {
             'user': request.user,
             'rutas': rutas_page_obj,
             'reservas': reservas_pasajero,
-            'mensajes': mensajes,
+            'mensajes': mensajes_unicos,
             
         }
 

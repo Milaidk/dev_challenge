@@ -481,7 +481,7 @@ a:hover {
     gap: 3em;
     justify-content: space-between;
     align-items: flex-end;
-
+    margin-top: 3rem;
 }
 
 #mensajeModal{
