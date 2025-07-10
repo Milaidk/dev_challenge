@@ -6,28 +6,60 @@
 {% block content %}
 <div class="container py-5 mt-4">
     <!-- Encabezado de bienvenida -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card bg-primary text-white">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="me-3">
-                            <i class="fas fa-car fa-3x opacity-75"></i>
-                        </div>
-                        <div>
-                            <h3 class="card-title mb-1">
-                                ¡Bienvenido, {{ user.nombre_completo }}!
-                            </h3>
-                            <p class="mb-0 opacity-90">
-                                <i class="fas fa-steering-wheel me-2"></i>
-                                Publica rutas y ayuda a otros estudiantes a llegar a su destino
-                            </p>
+    <div class="bienvenidaychat">
+        <div class="bienvenida">
+            <div class="row mb-2">
+                <div class="col-12">
+                    <div class="card bg-primary text-white">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center">
+                                <div class="me-3">
+                                    <i class="fas fa-car fa-3x opacity-75"></i>
+                                </div>
+                                <div>
+                                    <h3 class="card-title mb-1">
+                                        ¡Bienvenido, {{ user.nombre_completo }}!
+                                    </h3>
+                                    <p class="mb-0 opacity-90">
+                                        <i class="fas fa-steering-wheel me-2"></i>
+                                        Publica rutas y ayuda a otros estudiantes a llegar a su destino
+                                    </p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
+        
+        </div>
+        <div class="card mt-1 row mb-2">
+            <div class="card-header bg-light">
+                <strong><i class="fas fa-comments me-1"></i>Mensajes recientes</strong>
+            </div>
+            <div class="card-body" style="max-height: 200px; overflow-y: auto;">
+                {% for mensaje in mensajes %}
+                <div class="mb-2">
+                    <strong>{{ mensaje.emisor.nombre_completo }}</strong> dice:
+                    <div class="
+                        alert p-2 mt-2 mb-0 
+                        {% if mensaje.emisor.tipo_usuario == 'conductor' %}
+                            alert-primary
+                        {% else %}
+                            alert-success
+                        {% endif %}
+                    ">
+                        {{ mensaje.contenido }}
+                        <br>
+                        <small class="text-muted">{{ mensaje.timestamp|date:"d M Y H:i" }}</small>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-muted">No hay mensajes por el momento.</p>
+                {% endfor %}
+            </div>
         </div>
     </div>
+
 
     <div class="row">
         <!-- Panel izquierdo: Rutas publicadas -->
@@ -39,47 +71,44 @@
                         Mis rutas publicadas
                     </h5>
                 </div>
+                <nav aria-label="Page navigation" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        {% if rutas.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ rutas.previous_page_number }}" aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link" aria-hidden="true">&laquo;</span>
+                            </li>
+                        {% endif %}
 
-                        <nav aria-label="Page navigation" class="mt-4">
-                            <ul class="pagination justify-content-center">
-                                {% if rutas.has_previous %}
-                                    <li class="page-item">
-                                        <a class="page-link" href="?page={{ rutas.previous_page_number }}" aria-label="Previous">
-                                            <span aria-hidden="true">&laquo;</span>
-                                        </a>
-                                    </li>
-                                {% else %}
-                                    <li class="page-item disabled">
-                                        <span class="page-link" aria-hidden="true">&laquo;</span>
-                                    </li>
-                                {% endif %}
+                        {# Genera los números de página #}
+                        {% for i in rutas.paginator.page_range %}
+                            {% if rutas.number == i %}
+                                <li class="page-item active" aria-current="page">
+                                    <span class="page-link">{{ i }}</span>
+                                </li>
+                            {% else %}
+                                <li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
+                            {% endif %}
+                        {% endfor %}
 
-                                {# Genera los números de página #}
-                                {% for i in rutas.paginator.page_range %}
-                                    {% if rutas.number == i %}
-                                        <li class="page-item active" aria-current="page">
-                                            <span class="page-link">{{ i }}</span>
-                                        </li>
-                                    {% else %}
-                                        <li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
-                                    {% endif %}
-                                {% endfor %}
-
-                                {% if rutas.has_next %}
-                                    <li class="page-item">
-                                        <a class="page-link" href="?page={{ rutas.next_page_number }}" aria-label="Next">
-                                            <span aria-hidden="true">&raquo;</span>
-                                        </a>
-                                    </li>
-                                {% else %}
-                                    <li class="page-item disabled">
-                                        <span class="page-link" aria-hidden="true">&raquo;</span>
-                                    </li>
-                                {% endif %}
-                            </ul>
-                        </nav>
-
-
+                        {% if rutas.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ rutas.next_page_number }}" aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link" aria-hidden="true">&raquo;</span>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
                 <div class="card-body">
                     {% if rutas %}
                         <div class="row g-4">
@@ -134,6 +163,15 @@
                                                     <i class="fas fa-edit me-1"></i>
                                                     Editar
                                                 </a>
+
+                                                <form action="{% url 'eliminar_ruta' ruta.id %}" method="post" style="display:inline;">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="btn btn-sm btn-danger"
+                                                            onclick="return confirm('¿Estás seguro de que deseas eliminar esta ruta?');">
+                                                        <i class="fas fa-trash-alt"></i> Eliminar
+                                                    </button>
+                                                </form>
+
                                             </div>
                                         </div>
                                     </div>
@@ -238,7 +276,6 @@
                                 <small>Número de pasajeros que puedes llevar</small>
                             </div>
                         </div>
-
                         <div class="d-grid">
                             <button type="submit" class="btn btn-primary">
                                 <i class="fas fa-paper-plane me-2"></i>

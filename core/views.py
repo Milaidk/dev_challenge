@@ -1,3 +1,6 @@
+import os
+import json
+from django.conf import settings
 from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate, logout
@@ -6,453 +9,18 @@ from .forms import RegistroForm, LoginForm
 from django.contrib import messages
 from .forms import RutaForm
 from .models import Ruta, Reserva, Usuario
+from .models import Mensaje
 from django.utils import timezone
 from django.http import JsonResponse
 from datetime import date
+from django.shortcuts import get_object_or_404
+from django.views.decorators.http import require_POST
+from django.contrib import messages
 
-sectores_quito = [
-    {
-        "nombre": "ALANGASÍ",
-        "barriosCercanos": ["VALLE DE LOS CHILLOS"]
-    },
-    {
-        "nombre": "ALOASÍ",
-        "barriosCercanos": ["MACHACHI"]
-    },
-    {
-        "nombre": "AMAGUAÑA",
-        "barriosCercanos": ["VALLE DE LOS CHILLOS"]
-    },
-    {
-        "nombre": "AMARU ÑAN",
-        "barriosCercanos": ["PUENGASÍ"]
-    },
-    {
-        "nombre": "BATÁN",
-        "barriosCercanos": ["UNIVERSIDAD DE LAS AMÉRICAS (UDLA)"]
-    },
-    {
-        "nombre": "BATÁN ALTO",
-        "barriosCercanos": ["UDLA"]
-    },
-    {
-        "nombre": "BELLAVISTA",
-        "barriosCercanos": ["UDLA", "LA FLORESTA", "LA CAROLINA", "LA MARISCAL", "GUÁPULO", "UNIVERSIDAD DE LAS AMÉRICAS (UDLA)"]
-    },
-    {
-        "nombre": "CALACALÍ",
-        "barriosCercanos": ["SAN ANTONIO DE PICHINCHA"]
-    },
-    {
-        "nombre": "CALDERÓN",
-        "barriosCercanos": ["LLANO CHICO", "PONCEANO", "COTOCOLLAO", "UNIVERSIDAD INTERNACIONAL SEK", "CARCELÉN"]
-    },
-    {
-        "nombre": "CARCELÉN",
-        "barriosCercanos": ["COTOCOLLAO", "PONCEANO", "EL CONDADO", "UNIVERSIDAD INTERNACIONAL SEK", "CALDERÓN"]
-    },
-    {
-        "nombre": "CAROLINA",
-        "barriosCercanos": ["UDLA", "UNIVERSIDAD DE LAS AMÉRICAS (UDLA)"]
-    },
-    {
-        "nombre": "CAUPICHU",
-        "barriosCercanos": ["PUENGASÍ"]
-    },
-    {
-        "nombre": "CENTRO HISTÓRICO",
-        "barriosCercanos": ["SAN ROQUE", "LA LIBERTAD", "EL TEJAR", "ITCHIMBÍA", "SAN BLAS", "LA LOMA"]
-    },
-    {
-        "nombre": "CHILIBULO",
-        "barriosCercanos": ["EL CALZADO", "LA MAGDALENA", "LLOA"]
-    },
-    {
-        "nombre": "CHILLOGALLO",
-        "barriosCercanos": ["EL CONDADO", "TURUBAMBA", "LA ECUATORIANA", "LA MERCED", "QUITUMBE"]
-    },
-    {
-        "nombre": "CHIMBACALLE",
-        "barriosCercanos": ["SOLANDA", "RECREO", "LA MAGDALENA", "SAN BARTOLO", "FERROVIARIA", "VILLAFLORA"]
-    },
-    {
-        "nombre": "COMITÉ DEL PUEBLO",
-        "barriosCercanos": ["PONCEANO"]
-    },
-    {
-        "nombre": "CONOCOTO",
-        "barriosCercanos": ["ESPOCH EXTENSIÓN", "VALLE DE LOS CHILLOS", "SAN RAFAEL"]
-    },
-    {
-        "nombre": "COTOCOLLAO",
-        "barriosCercanos": ["PONCEANO", "EL BOSQUE", "SAN ISIDRO DEL INCA", "CARCELÉN", "CALDERÓN", "EL CONDADO"]
-    },
-    {
-        "nombre": "COTOCALLAO ALTO",
-        "barriosCercanos": ["CARCELÉN"]
-    },
-    {
-        "nombre": "CUMBAYÁ",
-        "barriosCercanos": ["GUÁPULO", "TUMBACO", "USFQ", "VALLE DE LOS CHILLOS", "LA TEIBA", "LOS ALMENDROS", "SAN JUAN DE CUMBAYÁ"]
-    },
-    {
-        "nombre": "EL BELÉN",
-        "barriosCercanos": ["UNIVERSIDAD CENTRAL", "UNIVERSIDAD TECNOLÓGICA EQUINOCCIAL (UTE)"]
-    },
-    {
-        "nombre": "EL BOSQUE",
-        "barriosCercanos": ["COTOCOLLAO"]
-    },
-    {
-        "nombre": "EL BUEY",
-        "barriosCercanos": ["MACHACHI"]
-    },
-    {
-        "nombre": "EL CALZADO",
-        "barriosCercanos": ["SOLANDA", "RECREO", "LA MAGDALENA", "CHILIBULO"]
-    },
-    {
-        "nombre": "EL CAMAL",
-        "barriosCercanos": ["FERROVIARIA"]
-    },
-    {
-        "nombre": "EL CONDADO",
-        "barriosCercanos": ["COTOCOLLAO", "PONCEANO", "LA ROLDÓS", "PISULÍ", "CARCELÉN", "CHILLOGALLO", "UNIVERSIDAD INTERNACIONAL SEK"]
-    },
-    {
-        "nombre": "EL EJIDO",
-        "barriosCercanos": ["PUCE", "LA FLORESTA", "UNIVERSIDAD CENTRAL", "UCE", "LA MARISCAL", "PONTIFICIA UNIVERSIDAD CATOLICA DEL ECUADOR"]
-    },
-    {
-        "nombre": "EL GIRÓN",
-        "barriosCercanos": ["UNIVERSIDAD POLITÉCNICA SALESIANA"]
-    },
-    {
-        "nombre": "EL QUINCHE",
-        "barriosCercanos": ["TUMBACO"]
-    },
-    {
-        "nombre": "EL TEJAR",
-        "barriosCercanos": ["CENTRO HISTÓRICO"]
-    },
-    {
-        "nombre": "EL TROJE",
-        "barriosCercanos": ["QUITUMBE"]
-    },
-    {
-        "nombre": "ESPE",
-        "barriosCercanos": ["VALLE DE LOS CHILLOS", "SANGOLQUÍ", "ESPOCH EXTENSIÓN", "SAN RAFAEL"]
-    },
-    {
-        "nombre": "ESPOCH EXTENSIÓN",
-        "barriosCercanos": ["SANGOLQUÍ", "CONOCOTO", "ESPE"]
-    },
-    {
-        "nombre": "FERROVIARIA",
-        "barriosCercanos": ["CHIMBACALLE", "FERROVIARIA BAJA", "EL CAMAL", "LA MAGDALENA", "LA ARGELIA"]
-    },
-    {
-        "nombre": "FERROVIARIA BAJA",
-        "barriosCercanos": ["FERROVIARIA"]
-    },
-    {
-        "nombre": "GONZÁLEZ SUÁREZ",
-        "barriosCercanos": ["LA CAROLINA"]
-    },
-    {
-        "nombre": "GRANDA CENTENO",
-        "barriosCercanos": ["UDLA"]
-    },
-    {
-        "nombre": "GUAMANÍ",
-        "barriosCercanos": ["QUITUMBE", "TURUBAMBA", "LA COCHA", "SANTO TOMÁS", "LA ARAGÓN"]
-    },
-    {
-        "nombre": "GUÁPULO",
-        "barriosCercanos": ["BELLAVISTA", "LA FLORESTA", "SAN FRANCISCO DE GUÁPULO", "TOTORAS", "LLOA", "CUMBAYÁ"]
-    },
-    {
-        "nombre": "IÑAQUITO",
-        "barriosCercanos": ["LA PAZ", "LA CAROLINA", "JIPILAPA", "MARISCAL SUCRE", "RUMIPAMBA", "LA MARISCAL"]
-    },
-    {
-        "nombre": "ITCHIMBÍA",
-        "barriosCercanos": ["CENTRO HISTÓRICO", "PUENGASÍ"]
-    },
-    {
-        "nombre": "JIPILAPA",
-        "barriosCercanos": ["IÑAQUITO"]
-    },
-    {
-        "nombre": "LA ARAGÓN",
-        "barriosCercanos": ["GUAMANÍ"]
-    },
-    {
-        "nombre": "LA ARGELIA",
-        "barriosCercanos": ["LLOA", "FERROVIARIA"]
-    },
-    {
-        "nombre": "LA CAROLINA",
-        "barriosCercanos": ["BELLAVISTA", "IÑAQUITO", "LA PRADERA", "QUITO TENIS", "GONZÁLEZ SUÁREZ", "LA MARISCAL"]
-    },
-    {
-        "nombre": "LA COCHA",
-        "barriosCercanos": ["GUAMANÍ"]
-    },
-    {
-        "nombre": "LA ECUATORIANA",
-        "barriosCercanos": ["QUITUMBE", "TURUBAMBA", "CHILLOGALLO"]
-    },
-    {
-        "nombre": "LA FLORESTA",
-        "barriosCercanos": ["BELLAVISTA", "EL EJIDO", "LA PAZ", "LA MARISCAL", "GUÁPULO"]
-    },
-    {
-        "nombre": "LA LIBERTAD",
-        "barriosCercanos": ["CENTRO HISTÓRICO", "PUENGASÍ"]
-    },
-    {
-        "nombre": "LA LOMA",
-        "barriosCercanos": ["CENTRO HISTÓRICO"]
-    },
-    {
-        "nombre": "LA MAGDALENA",
-        "barriosCercanos": ["EL CALZADO", "SOLANDA", "RECREO", "CHIMBACALLE", "CHILIBULO", "FERROVIARIA", "UNIVERSIDAD POLITÉCNICA SALESIANA"]
-    },
-    {
-        "nombre": "LA MARISCAL",
-        "barriosCercanos": ["EL EJIDO", "LA FLORESTA", "BELLAVISTA", "RUMIPAMBA", "IÑAQUITO", "LA CAROLINA", "PUCE", "PONTIFICIA UNIVERSIDAD CATOLICA DEL ECUADOR", "UCE"]
-    },
-    {
-        "nombre": "LA MERCED",
-        "barriosCercanos": ["CHILLOGALLO"]
-    },
-    {
-        "nombre": "LA MITAD DEL MUNDO",
-        "barriosCercanos": ["SAN ANTONIO DE PICHINCHA"]
-    },
-    {
-        "nombre": "LA MORITA",
-        "barriosCercanos": ["TUMBACO"]
-    },
-    {
-        "nombre": "LA PAZ",
-        "barriosCercanos": ["LA FLORESTA", "IÑAQUITO"]
-    },
-    {
-        "nombre": "LA PRADERA",
-        "barriosCercanos": ["LA CAROLINA"]
-    },
-    {
-        "nombre": "LA ROLDÓS",
-        "barriosCercanos": ["EL CONDADO"]
-    },
-    {
-        "nombre": "LA TEIBA",
-        "barriosCercanos": ["CUMBAYÁ"]
-    },
-    {
-        "nombre": "LA VALLE",
-        "barriosCercanos": ["VILLAFLORA"]
-    },
-    {
-        "nombre": "LLANO CHICO",
-        "barriosCercanos": ["CALDERÓN"]
-    },
-    {
-        "nombre": "LLOA",
-        "barriosCercanos": ["CHILIBULO", "LA ARGELIA", "GUAPULO"]
-    },
-    {
-        "nombre": "LOS ALMENDROS",
-        "barriosCercanos": ["CUMBAYÁ"]
-    },
-    {
-        "nombre": "MACHACHI",
-        "barriosCercanos": ["ALOASÍ", "EL BUEY", "PAJÁN", "UYUMBICHO"]
-    },
-    {
-        "nombre": "MARISCAL SUCRE",
-        "barriosCercanos": ["IÑAQUITO"]
-    },
-    {
-        "nombre": "MIRAFLORES",
-        "barriosCercanos": ["UNIVERSIDAD TECNOLÓGICA EQUINOCCIAL (UTE)"]
-    },
-    {
-        "nombre": "OYACACHI",
-        "barriosCercanos": ["CALDERÓN"]
-    },
-    {
-        "nombre": "PAJÁN",
-        "barriosCercanos": ["MACHACHI"]
-    },
-    {
-        "nombre": "PIFO",
-        "barriosCercanos": ["TUMBACO"]
-    },
-    {
-        "nombre": "PÍNTAG",
-        "barriosCercanos": ["VALLE DE LOS CHILLOS"]
-    },
-    {
-        "nombre": "PISULÍ",
-        "barriosCercanos": ["EL CONDADO"]
-    },
-    {
-        "nombre": "PONCEANO",
-        "barriosCercanos": ["EL CONDADO", "COTOCOLLAO", "COMITÉ DEL PUEBLO", "CARCELÉN", "CALDERÓN"]
-    },
-    {
-        "nombre": "PONTIFICIA UNIVERSIDAD CATOLICA DEL ECUADOR",
-        "barriosCercanos": ["LA MARISCAL", "EL EJIDO", "UNIVERSIDAD CENTRAL"]
-    },
-    {
-        "nombre": "PUCE",
-        "barriosCercanos": ["LA MARISCAL", "EL EJIDO", "UNIVERSIDAD CENTRAL"]
-    },
-    {
-        "nombre": "PUELIMBÍ",
-        "barriosCercanos": ["SAN ANTONIO DE PICHINCHA"]
-    },
-    {
-        "nombre": "PUEMBO",
-        "barriosCercanos": ["TUMBACO", "USFQ"]
-    },
-    {
-        "nombre": "PUENGASÍ",
-        "barriosCercanos": ["ITCHIMBÍA", "LA LIBERTAD", "SAN ISIDRO", "CAUPICHU", "AMARU ÑAN"]
-    },
-    {
-        "nombre": "QUITO SUR",
-        "barriosCercanos": ["VILLAFLORA"]
-    },
-    {
-        "nombre": "QUITO TENIS",
-        "barriosCercanos": ["LA CAROLINA"]
-    },
-    {
-        "nombre": "QUITUMBE",
-        "barriosCercanos": ["GUAMANÍ", "TURUBAMBA", "SOLANDA", "EL TROJE", "LA ECUATORIANA", "CHILLOGALLO"]
-    },
-    {
-        "nombre": "RECREO",
-        "barriosCercanos": ["SOLANDA", "LA MAGDALENA", "EL CALZADO", "VILLAFLORA", "SAN BARTOLO", "CHIMBACALLE", "UNIVERSIDAD POLITÉCNICA SALESIANA"]
-    },
-    {
-        "nombre": "RUMIPAMBA",
-        "barriosCercanos": ["LA MARISCAL", "IÑAQUITO"]
-    },
-    {
-        "nombre": "SAN ANTONIO DE PICHINCHA",
-        "barriosCercanos": ["LA MITAD DEL MUNDO", "PUELIMBÍ", "CALACALÍ"]
-    },
-    {
-        "nombre": "SAN BARTOLO",
-        "barriosCercanos": ["CHIMBACALLE", "SOLANDA", "RECREO", "VILLAFLORA"]
-    },
-    {
-        "nombre": "SAN BLAS",
-        "barriosCercanos": ["CENTRO HISTÓRICO"]
-    },
-    {
-        "nombre": "SAN FRANCISCO DE GUÁPULO",
-        "barriosCercanos": ["GUÁPULO"]
-    },
-    {
-        "nombre": "SAN ISIDRO",
-        "barriosCercanos": ["PUENGASÍ"]
-    },
-    {
-        "nombre": "SAN ISIDRO DEL INCA",
-        "barriosCercanos": ["COTOCOLLAO"]
-    },
-    {
-        "nombre": "SAN JUAN",
-        "barriosCercanos": ["UNIVERSIDAD CENTRAL", "UNIVERSIDAD TECNOLÓGICA EQUINOCCIAL (UTE)"]
-    },
-    {
-        "nombre": "SAN JUAN DE CUMBAYÁ",
-        "barriosCercanos": ["CUMBAYÁ"]
-    },
-    {
-        "nombre": "SAN RAFAEL",
-        "barriosCercanos": ["ESPE", "VALLE DE LOS CHILLOS"]
-    },
-    {
-        "nombre": "SAN ROQUE",
-        "barriosCercanos": ["CENTRO HISTÓRICO"]
-    },
-    {
-        "nombre": "SANTO TOMÁS",
-        "barriosCercanos": ["GUAMANÍ"]
-    },
-    {
-        "nombre": "SANGOLQUÍ",
-        "barriosCercanos": ["ESPE", "ESPOCH EXTENSIÓN"]
-    },
-    {
-        "nombre": "SOLANDA",
-        "barriosCercanos": ["RECREO", "LA MAGDALENA", "CHIMBACALLE", "EL CALZADO", "SAN BARTOLO", "QUITUMBE"]
-    },
-    {
-        "nombre": "TOTORAS",
-        "barriosCercanos": ["GUÁPULO"]
-    },
-    {
-        "nombre": "TUMBACO",
-        "barriosCercanos": ["CUMBAYÁ", "PUEMBO", "PIFO", "LA MORITA", "EL QUINCHE", "USFQ"]
-    },
-    {
-        "nombre": "TURUBAMBA",
-        "barriosCercanos": ["QUITUMBE", "GUAMANÍ", "CHILLOGALLO", "LA ECUATORIANA"]
-    },
-    {
-        "nombre": "UCE",
-        "barriosCercanos": ["LA MARISCAL", "EL EJIDO", "UNIVERSIDAD CENTRAL"]
-    },
-    {
-        "nombre": "UDLA",
-        "barriosCercanos": ["GRANDA CENTENO", "BATÁN ALTO", "BELLAVISTA", "CAROLINA"]
-    },
-    {
-        "nombre": "UNIVERSIDAD CENTRAL",
-        "barriosCercanos": ["PUCE", "EL BELÉN", "SAN JUAN", "EL EJIDO", "PONTIFICIA UNIVERSIDAD CATOLICA DEL ECUADOR", "UCE"]
-    },
-    {
-        "nombre": "UNIVERSIDAD DE LAS AMÉRICAS (UDLA)",
-        "barriosCercanos": ["BATÁN", "BELLAVISTA", "CAROLINA"]
-    },
-    {
-        "nombre": "UNIVERSIDAD INTERNACIONAL SEK",
-        "barriosCercanos": ["CALDERÓN", "CARCELÉN", "EL CONDADO"]
-    },
-    {
-        "nombre": "UNIVERSIDAD POLITÉCNICA SALESIANA",
-        "barriosCercanos": ["EL GIRÓN", "RECREO", "LA MAGDALENA"]
-    },
-    {
-        "nombre": "UNIVERSIDAD TECNOLÓGICA EQUINOCCIAL (UTE)",
-        "barriosCercanos": ["MIRAFLORES", "EL BELÉN", "SAN JUAN"]
-    },
-    {
-        "nombre": "USFQ",
-        "barriosCercanos": ["CUMBAYÁ", "TUMBACO", "PUEMBO"]
-    },
-    {
-        "nombre": "UYUMBICHO",
-        "barriosCercanos": ["MACHACHI"]
-    },
-    {
-        "nombre": "VALLE DE LOS CHILLOS",
-        "barriosCercanos": ["CONOCOTO", "SAN RAFAEL", "CUMBAYÁ", "ALANGASÍ", "AMAGUAÑA", "PÍNTAG", "ESPE"]
-    },
-    {
-        "nombre": "VILLAFLORA",
-        "barriosCercanos": ["RECREO", "QUITO SUR", "LA VALLE", "CHIMBACALLE", "SAN BARTOLO"]
-    }
-]
 
+ruta_json = os.path.join(settings.BASE_DIR, 'core', 'sectores_quito.json')
+with open(ruta_json, 'r', encoding='utf-8') as f:
+    sectores_quito = json.load(f)
 
 # uso de api para rutas
 def api_rutas_sector(request):
@@ -496,6 +64,30 @@ def login_view(request):
     return render(request, 'login.html', {'form': form})
 
 
+
+#mesajes comunidad puce
+@login_required
+def enviar_mensaje_view(request):
+    if request.method == 'POST':
+        contenido = request.POST.get('mensaje')
+        tipo_destinatario = request.POST.get('destinatario_tipo')
+        emisor = request.user
+
+        if tipo_destinatario not in ['conductor', 'pasajero']:
+            messages.error(request, "Tipo de destinatario no válido.")
+            return redirect('panel')
+
+        # Evita que el mensaje se envíe a uno mismo
+        receptores = Usuario.objects.filter(tipo_usuario=tipo_destinatario).exclude(id=emisor.id)
+
+        for receptor in receptores:
+            Mensaje.objects.create(emisor=emisor, receptor=receptor, contenido=contenido)
+
+        messages.success(request, f"Mensaje enviado a {tipo_destinatario}s.")
+
+    return redirect('panel')
+
+
 def logout_view(request):
     logout(request)
     return redirect('login')
@@ -523,30 +115,49 @@ def editar_ruta_view(request, ruta_id):
 
 
 @login_required
+def eliminar_ruta_view(request, ruta_id):
+    if request.method == 'POST':
+        ruta = get_object_or_404(Ruta, id=ruta_id, conductor=request.user)
+        ruta.delete()
+        messages.success(request, "Ruta eliminada exitosamente.")
+        return redirect('panel')
+    return render(request, 'confirmar_eliminacion.html', {'ruta': ruta})
+
+
+@login_required
 def panel_view(request):
     if request.user.tipo_usuario == 'conductor':
-        rutas = Ruta.objects.filter(conductor=request.user)
-        all_rutas = Ruta.objects.all().order_by('fecha', 'hora_salida')
+        rutas_conductor = Ruta.objects.filter(conductor=request.user).order_by('fecha', 'hora_salida')
+        # all_rutas = Ruta.objects.all().order_by('fecha', 'hora_salida')
         rutas_por_pagina = 1 
-        paginator = Paginator(all_rutas, rutas_por_pagina)
+        paginator = Paginator(rutas_conductor, rutas_por_pagina)
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
+        
+        mensajes = Mensaje.objects.filter(
+            receptor__tipo_usuario=request.user.tipo_usuario
+        ).order_by('-timestamp')[:10]
         
         context = {
         'user': request.user,
         'rutas': page_obj,
+        'mensajes': mensajes,
         }
         
         return render(request, 'panel_conductor.html', context)
     else:
         sector_pasajero = request.user.origen.upper()
-        sectores_cercanos = []
+        sectores_cercanos = set()
 
         for item in sectores_quito:
-            if sector_pasajero == item['nombre'] or sector_pasajero in item['barriosCercanos']:
-                sectores_cercanos = [item['nombre']] + item['barriosCercanos']
-                break
-        # rutas = Ruta.objects.filter(fecha__gte=timezone.now().date(), asientos_disponibles__gt=0)
+            nombre = item['nombre'].upper()
+            barrios = [b.upper() for b in item['barriosCercanos']]
+
+            if sector_pasajero == nombre or sector_pasajero in barrios:
+                sectores_cercanos.add(nombre)
+                sectores_cercanos.update(barrios)
+
+        sectores_cercanos = list(sectores_cercanos)
         rutas_cercanas = Ruta.objects.filter(
             origen__in=sectores_cercanos,
             fecha__gte=timezone.now().date(),
@@ -561,11 +172,18 @@ def panel_view(request):
         reservas_pasajero = Reserva.objects.filter(
             pasajero=request.user
         ).order_by('-ruta__fecha', '-ruta__hora_salida')
+        
+   
+        mensajes = Mensaje.objects.filter(
+            receptor__tipo_usuario=request.user.tipo_usuario
+        ).order_by('-timestamp')[:10]
 
         context = {
             'user': request.user,
             'rutas': rutas_page_obj,
             'reservas': reservas_pasajero,
+            'mensajes': mensajes,
+            
         }
 
         return render(request, 'panel_pasajero.html', context)
@@ -596,6 +214,9 @@ def publicar_ruta_view(request):
         )
         return redirect('panel')
     return render(request, 'publicar_ruta.html', {'today': date.today().isoformat()})
+
+
+
 
 
 @login_required

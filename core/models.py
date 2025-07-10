@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.conf import settings
 
 class Usuario(AbstractUser):
     nombre_completo = models.CharField(max_length=100)
@@ -37,3 +38,14 @@ class Reserva(models.Model):
 
     def __str__(self):
         return f"Reserva de {self.pasajero} en {self.ruta}"
+    
+
+class Mensaje(models.Model):
+    emisor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='mensajes_enviados')
+    receptor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='mensajes_recibidos')
+    contenido = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.emisor} ➜ {self.receptor}: {self.contenido[:20]}"
+

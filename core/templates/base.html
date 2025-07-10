@@ -37,12 +37,9 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 
-                {% if user.is_authenticated or user.usuario.tipo_usuario != 'conductor' %}
-                    <button class="btn btn-outline-primary btn-sm" onclick="toggleRutas()">
-                        <i class="fas fa-route me-1"></i>
-                            Ver rutas
-                    </button>
-                {% endif %}
+                <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#mensajeModal">
+                    <i class="fas fa-comment-dots me-1"></i> Enviar mensaje
+                </button>
 
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <div class="navbar-nav ms-auto d-flex align-items-center gap-2">
@@ -66,6 +63,56 @@
     <main class="main">
         <div class="container">
             {% block content %}{% endblock content %}
+        </div>
+        <div class="modal fade" id="mensajeModal" tabindex="-1" aria-labelledby="mensajeModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div id="mensajeModal" class="modal-content">
+                    <form method="post" action="{% url 'enviar_mensaje' %}">
+                    {% csrf_token %}
+                        <div  class="modal-header">
+                            <h5 class="modal-title" id="mensajeModalLabel">Enviar mensaje</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="mb-2">
+                            <label for="destinatario_tipo" class="form-label">
+                                <i class="fas fa-users me-1"></i> Enviar a:
+                            </label>
+                            <select name="destinatario_tipo" class="form-select" required>
+                                {% if user.tipo_usuario == 'pasajero' %}
+                                    <option value="conductor">Conductores</option>
+                                    <option value="pasajero">Pasajeros</option>
+                                {% else %}
+                                    <option value="pasajero">Pasajeros</option>
+                                    <option value="conductor">Conductores</option>
+                                {% endif %}
+                            </select>
+                        </div>
+
+                        <div class="mb-2">
+                            <label for="mensaje" class="form-label">
+                                <i class="fas fa-comment me-1"></i> Frase
+                            </label>
+                            <select name="mensaje" class="form-select" required>
+                                {% if user.tipo_usuario == 'pasajero' %}
+                                    <option value="¡Gracias por llevarnos con tanto cuidado! 🙌">¡Gracias por llevarnos con tanto cuidado! 🙌</option>
+                                    <option value="Tu puntualidad y buena onda se agradecen muchísimo 😊">Tu puntualidad y buena onda se agradecen muchísimo 😊</option>
+                                    <option value="¡Viajar contigo siempre es un gusto! 🚗✨">¡Viajar contigo siempre es un gusto! 🚗✨</option>
+                                    <option value="Gracias por ser tan responsable y amable 🙏">Gracias por ser tan responsable y amable 🙏</option>
+                                    <option value="¡Nos haces el viaje mucho más fácil! 💙">¡Nos haces el viaje mucho más fácil! 💙</option>
+                                    <option value="¡Gracias por confiar en mí para llevarlos! 🚘">¡Gracias por confiar en mí para llevarlos! 🚘</option>
+                                    <option value="Haré lo posible por que el viaje sea seguro y cómodo 💪😊">Haré lo posible por que el viaje sea seguro y cómodo 💪😊</option>
+                                    <option value="¡Me alegra compartir este trayecto con ustedes! 😄">¡Me alegra compartir este trayecto con ustedes! 😄</option>
+                                    <option value="Gracias por su buena vibra y respeto 🙏✨">Gracias por su buena vibra y respeto 🙏✨</option>
+                                    <option value="Siempre es un placer llevar a personas tan chéveres 🚗💙">Siempre es un placer llevar a personas tan chéveres 🚗💙</option>
+                                {% endif %}
+                            </select>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary">Enviar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
     </main>
 
@@ -94,6 +141,8 @@
             </div>
         </div>
     </footer>
+
+
 
     <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

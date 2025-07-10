@@ -1,49 +1,3 @@
-// Función para mostrar/ocultar rutas con animación mejorada
-
-
-function toggleRutas() {
-    const contenedor = document.getElementById('rutasContainer');
-    const button = document.querySelector('[onclick="toggleRutas()"]');
-
-    if (contenedor.style.display === 'none' || contenedor.style.display === '') {
-        // Mostrar rutas
-        contenedor.style.display = 'block';
-        contenedor.classList.add('fade-in');
-
-        // Actualizar texto del botón
-        if (button) {
-            button.innerHTML = '<i class="fas fa-eye-slash me-1"></i> Ocultar rutas';
-            button.classList.remove('btn-outline-primary');
-            button.classList.add('btn-outline-secondary');
-        }
-
-        // Scroll suave hacia las rutas
-        setTimeout(() => {
-            contenedor.scrollIntoView({
-                behavior: 'smooth',
-                block: 'start'
-            });
-        }, 100);
-
-    } else {
-        // Ocultar rutas
-        contenedor.classList.remove('fade-in');
-        contenedor.classList.add('fade-out');
-
-        // Actualizar texto del botón
-        if (button) {
-            button.innerHTML = '<i class="fas fa-route me-1"></i> Ver rutas';
-            button.classList.remove('btn-outline-secondary');
-            button.classList.add('btn-outline-primary');
-        }
-
-        setTimeout(() => {
-            contenedor.style.display = 'none';
-            contenedor.classList.remove('fade-out');
-        }, 300);
-    }
-}
-
 // Animaciones CSS dinámicas
 document.addEventListener('DOMContentLoaded', function () {
     const origenInput = document.getElementById('origen');
@@ -304,18 +258,18 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     fechaInput.addEventListener("input", function () {
-            const hoy = new Date();
-            hoy.setHours(0, 0, 0, 0);  // Eliminamos la hora
-            const fechaIngresada = new Date(this.value);
+        const hoy = new Date();
+        hoy.setHours(0, 0, 0, 0);  // Eliminamos la hora
+        const fechaIngresada = new Date(this.value);
 
-            if (fechaIngresada < hoy) {
-                mensaje.style.display = "block";
-                this.classList.add("is-invalid");
-            } else {
-                mensaje.style.display = "none";
-                this.classList.remove("is-invalid");
-            }
-        });
+        if (fechaIngresada < hoy) {
+            mensaje.style.display = "block";
+            this.classList.add("is-invalid");
+        } else {
+            mensaje.style.display = "none";
+            this.classList.remove("is-invalid");
+        }
+    });
 });
 
 // Función de validación de campos
